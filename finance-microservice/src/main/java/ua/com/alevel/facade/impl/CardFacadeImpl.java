@@ -3,17 +3,16 @@ package ua.com.alevel.facade.impl;
 import org.springframework.stereotype.Service;
 import ua.com.alevel.exception.AccessException;
 import ua.com.alevel.exception.EntityExistException;
+import ua.com.alevel.exception.EntityNotFoundException;
 import ua.com.alevel.facade.CardFacade;
 import ua.com.alevel.persistence.entity.Card;
 import ua.com.alevel.service.CardService;
 import ua.com.alevel.util.GenerateDataCard;
 import ua.com.alevel.web.dto.request.UserRequestDto;
-import ua.com.alevel.web.dto.request.type.Role;
 import ua.com.alevel.web.dto.response.CardResponseDto;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,7 @@ public class CardFacadeImpl implements CardFacade {
 
     @Override
     public CardResponseDto create(String actualAuthToken) throws IOException, URISyntaxException, EntityExistException {
-        UserRequestDto user = cardService.getUserByAPI(actualAuthToken);
+        UserRequestDto user = cardService.apiGetUserByToken(actualAuthToken);
         Card card = new Card();
         card.setNumber(GenerateDataCard.generateCardNumber());
         card.setCvv(GenerateDataCard.generateCardCvv());
@@ -39,9 +38,9 @@ public class CardFacadeImpl implements CardFacade {
 
     @Override
     public List<CardResponseDto> findCardsByUserToken(String actualAuthToken) throws IOException, URISyntaxException {
-        UserRequestDto user = cardService.getUserByAPI(actualAuthToken);
+        UserRequestDto user = cardService.apiGetUserByToken(actualAuthToken);
 
-        List<Card> cards = cardService.findCardsByUserId(user.getId());
+        List<Card> cards = cardService.findCardsByUserId(user, user.getId());
         if (!cards.isEmpty()) {
             return cards.stream()
                     .map(card -> new CardResponseDto(card, generateFullNameOwner(user)))
@@ -53,8 +52,24 @@ public class CardFacadeImpl implements CardFacade {
 
     @Override
     public CardResponseDto findCardById(String actualAuthToken, Long cardId) throws IOException, URISyntaxException, AccessException {
-        UserRequestDto user = cardService.getUserByAPI(actualAuthToken);
+        UserRequestDto user = cardService.apiGetUserByToken(actualAuthToken);
         return new CardResponseDto(cardService.findById(user, cardId), generateFullNameOwner(user));
+    }
+
+    @Override
+    public List<CardResponseDto> findCardsByUserId(String actualAuthToken, Long userId) throws IOException, URISyntaxException, AccessException, EntityNotFoundException {
+        UserRequestDto actualUser = cardService.apiGetUserByToken(actualAuthToken);
+
+        UserRequestDto targetUser = cardService.apiGetUserById(actualAuthToken, userId);
+
+        List<Card> cards = cardService.findCardsByUserId(actualUser, userId);
+        if (!cards.isEmpty()) {
+            return cards.stream()
+                    .map(card -> new CardResponseDto(card, generateFullNameOwner(targetUser)))
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
     }
 
 

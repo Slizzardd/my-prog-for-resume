@@ -25,8 +25,22 @@ public class APIController {
         if (ControllerUtil.authCheck(actualAuthToken)) {
             String token = ControllerUtil.getToken(actualAuthToken);
             try {
-                System.out.println("userFacade = " + userFacade.apiFindUserByToken(token));
                 return ResponseEntity.ok(userFacade.apiFindUserByToken(token));
+            } catch (ExpiredJwtException e) {
+                return ResponseEntity.status(401).body("User not authorized: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/getUserById")
+    public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String actualAuthToken,
+                                         @RequestHeader("UserId") Long userId) {
+        if (ControllerUtil.authCheck(actualAuthToken)) {
+            String token = ControllerUtil.getToken(actualAuthToken);
+            try {
+                return ResponseEntity.ok(userFacade.apiFindById(userId, token));
             } catch (ExpiredJwtException e) {
                 return ResponseEntity.status(401).body("User not authorized: " + e.getMessage());
             }

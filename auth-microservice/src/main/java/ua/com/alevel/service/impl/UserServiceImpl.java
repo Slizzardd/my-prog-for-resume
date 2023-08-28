@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
     public User findByEmail(String email) throws AccessException {
         return userRepository.findByEmail(email).orElse(null);
@@ -98,6 +99,11 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new AccessException("you not have permission for this data");
         }
+    }
+
+    @Override
+    public Long getNumbersOfUsers() {
+        return userRepository.count();
     }
 
     private void checkIfUserExistsByEmail(String email) throws EntityExistException {

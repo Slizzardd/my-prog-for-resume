@@ -23,7 +23,15 @@ public interface UserFacade extends BaseFacade<UserRequestDto, UserResponseDto> 
 
     UserResponseDto findByToken(String actualAuthToken);
 
+    List<UserResponseDto> findAll(String actualAuthToken) throws AccessException;
+
+//  Statistic
+    Long getNumbersOfUsers();
+
+//  Api
     User apiFindUserByToken(String actualAuthToken);
 
-    List<UserResponseDto> findAll(String actualAuthToken) throws AccessException;
+    User apiFindById(Long id, String actualAuthToken) throws EntityNotFoundException, AccessException;
+
+
 }

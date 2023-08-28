@@ -7,9 +7,19 @@ public class UserRequestDto extends RequestDto {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String actualAuthToken;
+
+    private Boolean enabled;
+    private String authToken;
 
     public UserRequestDto() {
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     public String getEmail() {
@@ -53,11 +63,11 @@ public class UserRequestDto extends RequestDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getActualAuthToken() {
-        return actualAuthToken;
+    public String getAuthToken() {
+        return authToken;
     }
 
-    public void setActualAuthToken(String actualAuthToken) {
-        this.actualAuthToken = actualAuthToken;
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

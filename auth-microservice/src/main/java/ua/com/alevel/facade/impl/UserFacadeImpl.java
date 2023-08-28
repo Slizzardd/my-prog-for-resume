@@ -26,6 +26,9 @@ public class UserFacadeImpl implements UserFacade {
     public UserResponseDto create(UserRequestDto userRequestDto) throws EntityExistException {
         User user = new User();
         setMainUserInformation(userRequestDto, user);
+
+        user.setPassword(userRequestDto.getPassword());
+
         return new UserResponseDto(userService.create(user));
     }
 
@@ -33,7 +36,10 @@ public class UserFacadeImpl implements UserFacade {
     public UserResponseDto update(UserRequestDto userRequestDto) throws EntityExistException, AccessException {
         User user = userService.findByEmail(userRequestDto.getEmail());
         setMainUserInformation(userRequestDto, user);
-        return new UserResponseDto(userService.update(user, userRequestDto.getActualAuthToken()));
+
+        user.setEnabled(userRequestDto.getEnabled());
+
+        return new UserResponseDto(userService.update(user, userRequestDto.getAuthToken()));
     }
 
     @Override
@@ -62,6 +68,11 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
+    public User apiFindById(Long id, String actualAuthToken) throws EntityNotFoundException, AccessException {
+        return userService.findById(id, actualAuthToken);
+    }
+
+    @Override
     public List<UserResponseDto> findAll(String actualAuthToken) throws AccessException {
         List<User> users = userService.findAll(actualAuthToken);
         List<UserResponseDto> userResponses = new ArrayList<>();
@@ -71,11 +82,15 @@ public class UserFacadeImpl implements UserFacade {
         return userResponses;
     }
 
+    @Override
+    public Long getNumbersOfUsers() {
+        return userService.getNumbersOfUsers();
+    }
+
     private void setMainUserInformation(UserRequestDto userRequestDto, User user){
         user.setEmail(userRequestDto.getEmail());
         user.setFirstName(userRequestDto.getFirstName());
         user.setLastName(userRequestDto.getLastName());
         user.setPhoneNumber(userRequestDto.getPhoneNumber());
-        user.setPassword(userRequestDto.getPassword());
     }
 }

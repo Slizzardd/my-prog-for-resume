@@ -18,12 +18,13 @@ public interface CardService extends BaseService<Card> {
 
     void delete(Long id, String actualAuthToken) throws EntityNotFoundException;
 
-    List<Card> findCardsByUserId(Long userId) throws IOException, URISyntaxException;
+    List<Card> findCardsByUserId(UserRequestDto actualUser, Long userId) throws IOException, URISyntaxException;
 
     List<Card> findAll(String actualAuthToken) throws AccessException;
 
     Card findById(UserRequestDto user, Long id) throws IOException, URISyntaxException;
-    UserRequestDto getUserByAPI(String actualAuthToken);
+    UserRequestDto apiGetUserByToken(String actualAuthToken);
+    UserRequestDto apiGetUserById(String actualAuthToken, Long id);
 
     Boolean numberCardExistException(String number);
 }

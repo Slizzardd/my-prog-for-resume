@@ -12,4 +12,6 @@ public interface UserRepository extends BaseRepository<User>{
     Boolean existsByEmail(String email);
 
     Boolean existsByPhoneNumber(String phoneNumber);
+
+
 }

@@ -23,4 +23,6 @@ public interface UserService extends BaseService<User> {
 
     List<User> findAll(String actualAuthToken) throws AccessException;
 
+    Long getNumbersOfUsers();
+
 }

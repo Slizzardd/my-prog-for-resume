@@ -1,7 +1,6 @@
 package ua.com.alevel.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -27,7 +26,8 @@ import java.util.Objects;
 @Service
 public class CardServiceImpl implements CardService {
 
-    private static final String API_GET_CURR_USER = "http://localhost:8082/api/user/getUserByToken";
+    private static final String API_GET_CURR_USER_BY_TOKEN = "http://localhost:8082/api/user/getUserByToken";
+    private static final String API_GET_CURR_USER_BY_ID = "http://localhost:8082/api/user/getUserById";
 
     private final ObjectMapper objectMapper;
     private final CardRepository cardRepository;
@@ -53,8 +53,13 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public List<Card> findCardsByUserId(Long userId) throws IOException, URISyntaxException {
-        return cardRepository.findCardsByOwnerId(userId.toString());
+    public List<Card> findCardsByUserId(UserRequestDto actualUser, Long userId) throws IOException, URISyntaxException {
+        if (actualUser.getRole() == Role.ADMIN ||
+                Objects.equals(actualUser.getId(), userId)) {
+            return cardRepository.findCardsByOwnerId(userId.toString());
+        }else {
+            throw new AccessException("you not have permission for this data");
+        }
     }
 
     @Override
@@ -68,9 +73,9 @@ public class CardServiceImpl implements CardService {
         checkExist(id);
 
         if (user.getId().toString().equals(Objects.requireNonNull(card).getOwnerId()) ||
-                user.getRole() == Role.ADMIN){
+                user.getRole() == Role.ADMIN) {
             return card;
-        }else {
+        } else {
             throw new AccessException("you not have permission for this data");
         }
     }
@@ -81,12 +86,34 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public UserRequestDto getUserByAPI(String actualAuthToken) {
+    public UserRequestDto apiGetUserByToken(String actualAuthToken) {
         try {
             CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpUriRequest httpget = RequestBuilder.get()
-                    .setUri(new URI(API_GET_CURR_USER))
-                    .setHeader("Authorization", "Bearer " + actualAuthToken)
+                    .setUri(new URI(API_GET_CURR_USER_BY_TOKEN))
+                    .setHeader("Authorization", actualAuthToken)
+                    .build();
+
+            try (CloseableHttpResponse response = httpclient.execute(httpget)) {
+                if (response.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
+                    return objectMapper.readValue(response.getEntity().getContent(), UserRequestDto.class);
+                } else {
+                    return null;
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public UserRequestDto apiGetUserById(String actualAuthToken, Long id) {
+        try {
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            HttpUriRequest httpget = RequestBuilder.get()
+                    .setUri(new URI(API_GET_CURR_USER_BY_ID))
+                    .setHeader("Authorization", actualAuthToken)
+                    .setHeader("UserId", String.valueOf(id))
                     .build();
 
             try (CloseableHttpResponse response = httpclient.execute(httpget)) {

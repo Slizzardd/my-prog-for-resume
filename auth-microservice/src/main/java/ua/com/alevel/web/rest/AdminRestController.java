@@ -3,13 +3,15 @@ package ua.com.alevel.web.rest;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ua.com.alevel.exception.AccessException;
+import ua.com.alevel.exception.EntityNotFoundException;
 import ua.com.alevel.facade.UserFacade;
 import ua.com.alevel.util.ControllerUtil;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/user")
@@ -36,4 +38,18 @@ public class AdminRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    @GetMapping("/getUserById")
+    public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String actualAuthToken,
+                                         @RequestHeader("UserId") Long userId) {
+        try {
+            String token = ControllerUtil.getToken(actualAuthToken);
+            return ResponseEntity.ok(userFacade.findById(userId, token));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (AccessException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+
 }

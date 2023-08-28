@@ -67,4 +67,18 @@ public class UserRestController {
         }
     }
 
+
+    @PutMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody UserRequestDto userRequestDto) {
+        if (ControllerUtil.authCheck(userRequestDto.getAuthToken())) {
+            userRequestDto.setAuthToken(ControllerUtil.getToken(userRequestDto.getAuthToken()));
+            try {
+                return ResponseEntity.ok(userFacade.update(userRequestDto));
+            } catch (ExpiredJwtException e) {
+                return ResponseEntity.status(401).body("User not authorized: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 }

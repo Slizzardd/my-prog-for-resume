@@ -11,7 +11,8 @@ public class UserResponseDto extends ResponseDto {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String enabled;
+
+    private Boolean enabled;
     private String role;
 
 
@@ -23,15 +24,16 @@ public class UserResponseDto extends ResponseDto {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.phoneNumber = user.getPhoneNumber();
-        this.enabled = enabledToString(user.isEnabled());
         this.role = user.getRole().toString();
+        this.enabled = user.isEnabled();
     }
 
-    public String getEnabled() {
+
+    public Boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(String enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
 
@@ -80,7 +82,7 @@ public class UserResponseDto extends ResponseDto {
         if(enabled){
             return "active";
         }else{
-            return "deactivated";
+            return "deactivate";
         }
     }
     private String dateToString(Date date){

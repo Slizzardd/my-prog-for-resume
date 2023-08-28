@@ -2,6 +2,7 @@ package ua.com.alevel.facade;
 
 import ua.com.alevel.exception.AccessException;
 import ua.com.alevel.exception.EntityExistException;
+import ua.com.alevel.exception.EntityNotFoundException;
 import ua.com.alevel.web.dto.request.CardRequestDto;
 import ua.com.alevel.web.dto.response.CardResponseDto;
 
@@ -16,4 +17,6 @@ public interface CardFacade extends BaseFacade<CardRequestDto, CardResponseDto> 
     List<CardResponseDto> findCardsByUserToken(String ownerToken) throws IOException, URISyntaxException;
 
     CardResponseDto findCardById(String actualAuthToken, Long cardId) throws IOException, URISyntaxException, AccessException;
+
+    List<CardResponseDto> findCardsByUserId(String actualAuthToken, Long userId) throws IOException, URISyntaxException, AccessException, EntityNotFoundException;
 }
